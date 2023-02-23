@@ -8,13 +8,13 @@ function App () {
   const [state, setState] = useState({
     searchResults: [
       {
-        id: 'td1',
+        uri: 'td1',
         name: 'Tiny Dancer',
         artist: 'Elton John',
         album: 'Madman Across The Water'
       },
       {
-        id: 'td2',
+        uri: 'td2',
         name: 'Tiny Dancer',
         artist: 'Tim McGraw',
         album: 'Love Story'
@@ -23,13 +23,13 @@ function App () {
     playlistName: 'Liked List',
     playlistTracks: [
       {
-        id: 'pr1',
+        uri: 'pr1',
         name: 'Stronger',
         artist: 'Britney Spears',
         album: 'Oops!... I Did It Again'
       },
       {
-        id: 'pr2',
+        uri: 'pr2',
         name: 'So Emotional',
         artist: 'Whitney Houston',
         album: 'Whitney'
@@ -49,14 +49,30 @@ function App () {
     }
   }
 
+  const changePlaylistName = (playlistName) => {
+    setState({...state, playlistName: playlistName })
+  }
+
+  const removeTrack = (trackId) => {
+    if (state.playlistTracks.find(savedTrack => savedTrack.id === trackId)) {
+      const trackIndex = state.playlistTracks.map(track => track.id).indexOf(trackId)
+      const newPlaylistTracks = [...state.playlistTracks]
+      newPlaylistTracks.splice(trackIndex, 1)
+      setState({
+        ...state,
+        playlistTracks: newPlaylistTracks
+      })
+    }
+  }
+
   return (
   <div>
     <h1>Spotify<span className="highlight">Playlists</span></h1>
     <div className="App">
         <SearchBar />
         <div className="App-playlist">
-        <SearchResults onAdd={addTrack} searchResults={state.searchResults} />
-        <Playlist playlistName={state.playlistName} playlistTracks={state.playlistTracks}/>
+        <SearchResults onAdd={addTrack} playlistTracks={state.playlistTracks} searchResults={state.searchResults} />
+        <Playlist changePlaylistName={changePlaylistName} onRemove={removeTrack} playlistName={state.playlistName} playlistTracks={state.playlistTracks} />
       </div>
     </div>
   </div>

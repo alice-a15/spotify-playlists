@@ -1,9 +1,13 @@
 import React from 'react'
 import './Track.css'
 
-function Track ({ onAdd, track }) {
+function Track ({ isRemoval, listType, onAdd, onRemove, track }) {
   const addTrack = () => {
-    onAdd(track);
+    onAdd(track)
+  }
+
+  const removeTrack = () => {
+    onRemove(track.id)
   }
 
   return (
@@ -12,7 +16,7 @@ function Track ({ onAdd, track }) {
         <h3>{ track.name }</h3>
         <p>{ `${track.artist} | ${track.album}` }</p>
       </div>
-      <button className="Track-action" onClick={addTrack} >{/* <!-- + or - will go here --> */}</button>
+      <button className="Track-action" onClick={isRemoval ? () => removeTrack() : () => addTrack()} >{isRemoval ? listType === 'playlist' ? '-' : '' : '+'}</button>
     </div>
   )
 }
