@@ -37,13 +37,25 @@ function App () {
     ]
   })
 
+  const addTrack = (track) => {
+    if (!state.playlistTracks.find(savedTrack => savedTrack.id === track.id)) {
+      setState({
+        ...state,
+        playlistTracks: [
+          ...state.playlistTracks,
+          track
+        ]
+      })
+    }
+  }
+
   return (
   <div>
     <h1>Spotify<span className="highlight">Playlists</span></h1>
     <div className="App">
         <SearchBar />
         <div className="App-playlist">
-        <SearchResults searchResults={state.searchResults}/>
+        <SearchResults onAdd={addTrack} searchResults={state.searchResults} />
         <Playlist playlistName={state.playlistName} playlistTracks={state.playlistTracks}/>
       </div>
     </div>
