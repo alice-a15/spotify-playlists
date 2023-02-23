@@ -7,7 +7,7 @@ function Track ({ isRemoval, listType, onAdd, onRemove, track }) {
   }
 
   const removeTrack = () => {
-    onRemove(track.id)
+    onRemove(track.uri)
   }
 
   return (
