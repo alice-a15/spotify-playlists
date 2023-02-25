@@ -3,27 +3,15 @@ import './App.css'
 import SearchBar from '../SearchBar/SearchBar'
 import SearchResults from '../SearchResults/SearchResults'
 import Playlist from '../Playlist/Playlist'
-import getAccessToken from '../../util/spotify'
+import { getAccessToken, searchSpotify } from '../../util/spotify'
 
 function App () {
   const [state, setState] = useState({
+    isLoading: false,
     searchResults: [
     ],
     playlistName: 'Liked List',
-    playlistTracks: [
-      {
-        uri: 'pr1',
-        name: 'Stronger',
-        artist: 'Britney Spears',
-        album: 'Oops!... I Did It Again'
-      },
-      {
-        uri: 'pr2',
-        name: 'So Emotional',
-        artist: 'Whitney Houston',
-        album: 'Whitney'
-      }
-    ],
+    playlistTracks: [],
     searchTerm: ''
   })
 
@@ -60,7 +48,7 @@ function App () {
   }
 
   const savePlaylist = () => {
-    const trackURIs = [] 
+    const trackURIs = []
     state.playlistTracks.map(track => trackURIs.push(track.uri))
   }
 
@@ -68,16 +56,25 @@ function App () {
     setState({ ...state, searchTerm })
   }
 
-  const searchSpotify = () => {
-    const accessToken = getAccessToken()
-    console.log('SEARCHING WITH ACCESS TOKEN', accessToken)
+  const onSearch = () => {
+    setState({
+      ...state,
+      isLoading: true
+    })
+    searchSpotify(state.searchTerm)
+      .then(results => setState({
+        ...state,
+        isLoading: false,
+        searchResults: results
+      }))
+      .catch(error => console.log(error))
   }
 
   return (
     <div>
       <h1>Spotify<span className="highlight">Playlists</span></h1>
       <div className="App">
-          <SearchBar changeSearchTerm={changeSearchTerm} onSearch={searchSpotify} searchTerm={state.searchTerm} />
+          <SearchBar changeSearchTerm={changeSearchTerm} isLoading={state.isLoading} onSearch={onSearch} searchTerm={state.searchTerm} />
           <div className="App-playlist">
           <SearchResults onAdd={addTrack} playlistTracks={state.playlistTracks} searchResults={state.searchResults} />
           <Playlist changePlaylistName={changePlaylistName} onRemove={removeTrack} onSave={savePlaylist} playlistName={state.playlistName} playlistTracks={state.playlistTracks} />

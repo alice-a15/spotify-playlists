@@ -1,16 +1,16 @@
 import React from 'react'
 import './SearchBar.css'
 
-function SearchBar ({ changeSearchTerm, onSearch, searchTerm }) {
+function SearchBar ({ changeSearchTerm, isLoading, onSearch, searchTerm }) {
   const handleTermChange = (e) => {
     changeSearchTerm(e.target.value)
   }
 
   return (
-    <div className="SearchBar">
+    <form className="SearchBar">
       <input onChange={handleTermChange} placeholder="Enter A Song, Album, or Artist" value={searchTerm}/>
-      <button className="SearchButton" onClick={onSearch} >SEARCH</button>
-    </div>
+      <button className="SearchButton" onClick={onSearch} disabled={isLoading}>{isLoading ? 'LOADING...' : 'SEARCH'}</button>
+    </form>
   )
 }
 
