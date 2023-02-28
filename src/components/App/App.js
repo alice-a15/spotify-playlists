@@ -3,7 +3,7 @@ import './App.css'
 import SearchBar from '../SearchBar/SearchBar'
 import SearchResults from '../SearchResults/SearchResults'
 import Playlist from '../Playlist/Playlist'
-import { getAccessToken, searchSpotify } from '../../util/spotify'
+import { getAccessToken, savePlaylist, searchSpotify } from '../../util/spotify'
 
 function App () {
   const [state, setState] = useState({
@@ -47,9 +47,26 @@ function App () {
     }
   }
 
-  const savePlaylist = () => {
+  const onSave = async () => {
+    setState({
+      ...state,
+      isLoading: true
+    })
     const trackURIs = []
     state.playlistTracks.map(track => trackURIs.push(track.uri))
+    try {
+      await savePlaylist(state.playlistName, trackURIs)
+      setState({
+        ...state,
+        isLoading: false
+      })
+    } catch (error) {
+      setState({
+        ...state,
+        isLoading: false
+      })
+      console.log(error)
+    }
   }
 
   const changeSearchTerm = (searchTerm) => {
@@ -67,7 +84,13 @@ function App () {
         isLoading: false,
         searchResults: results
       }))
-      .catch(error => console.log(error))
+      .catch(error => {
+        setState({
+          ...state,
+          isLoading: false
+        })
+        console.log(error)
+      })
   }
 
   return (
@@ -77,7 +100,7 @@ function App () {
           <SearchBar changeSearchTerm={changeSearchTerm} isLoading={state.isLoading} onSearch={onSearch} searchTerm={state.searchTerm} />
           <div className="App-playlist">
           <SearchResults onAdd={addTrack} playlistTracks={state.playlistTracks} searchResults={state.searchResults} />
-          <Playlist changePlaylistName={changePlaylistName} onRemove={removeTrack} onSave={savePlaylist} playlistName={state.playlistName} playlistTracks={state.playlistTracks} />
+          <Playlist changePlaylistName={changePlaylistName} isLoading={state.isLoading} onRemove={removeTrack} onSave={onSave} playlistName={state.playlistName} playlistTracks={state.playlistTracks} />
         </div>
       </div>
     </div>
