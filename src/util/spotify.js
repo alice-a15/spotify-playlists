@@ -1,4 +1,3 @@
-let accessToken
 const clientId = 'b78d085fb7d94c2f9b55094f0004d8a0'
 const redirectUri = 'http://localhost:3000/'
 
@@ -9,30 +8,43 @@ const parseTracks = (tracks) => {
       uri: track.uri,
       name: track.name,
       artist: track.artists[0]?.name || 'Unknown Artist',
-      album: track.album?.name || 'Unknown Album'
+      album: track.album?.name || 'Unknown Album',
+      artwork: track.album?.images?.[0]
     }
     )))
   return parsedTracks;
 }
 
+const tokenRedirect = () => {
+  const scope = 'playlist-modify-public'
+  let url = 'https://accounts.spotify.com/authorize'
+  url += '?response_type=token'
+  url += '&client_id=' + encodeURIComponent(clientId)
+  url += '&scope=' + encodeURIComponent(scope)
+  url += '&redirect_uri=' + encodeURIComponent(redirectUri)
+  window.location = url
+}
+
 export const getAccessToken = () => {
   const accessTokenRegex = /access_token=([^&]*)/
-  // const accessExpiresRegex = /expires_in=([^&]*)/
+  const accessExpiresRegex = /expires_in=([^&]*)/
   if (window.location.href.match(accessTokenRegex)) {
     const urlAccessToken = window.location.href.match(accessTokenRegex)
-    accessToken = urlAccessToken[1]
-    return accessToken
-  } else if (accessToken) {
-    return accessToken
+    const urlTokenExpiry = window.location.href.match(accessExpiresRegex)
+    const currentDate = new Date()
+    const tokenExpiry = new Date(currentDate.getTime() + (urlTokenExpiry[1] - 10) * 1000)
+    localStorage.setItem('accessToken', urlAccessToken[1])
+    localStorage.setItem('tokenExpiry', tokenExpiry)
+    return urlTokenExpiry[1]
+  } else if (localStorage.getItem('accessToken')) {
+    if (Date.now() < Date.parse(localStorage.getItem('tokenExpiry'))) {
+      return localStorage.getItem('accessToken')
+    } else {
+      tokenRedirect()
+    }
+    return localStorage.getItem('accessToken')
   } else {
-    // localStorage.setItem(stateKey, state)
-    const scope = 'playlist-modify-public'
-    let url = 'https://accounts.spotify.com/authorize'
-    url += '?response_type=token'
-    url += '&client_id=' + encodeURIComponent(clientId)
-    url += '&scope=' + encodeURIComponent(scope)
-    url += '&redirect_uri=' + encodeURIComponent(redirectUri)
-    window.location = url
+    tokenRedirect();
   }
 }
 
